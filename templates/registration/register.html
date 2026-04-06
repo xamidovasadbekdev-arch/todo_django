@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ro'yxatdan o'tish</title>
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;600;700&family=Cabinet+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #060612;
+      --c1: #ff6b6b;
+      --c2: #ffd93d;
+      --c3: #6bcbff;
+      --c4: #c77dff;
+      --c5: #06ffa5;
+      --text: #f5f4ff;
+      --muted: #7b7a9a;
+      --card: #0e0e1e;
+      --border: #ffffff0c;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Cabinet Grotesk', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .dot {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      animation: floatDot linear infinite;
+    }
+
+    @keyframes floatDot {
+      0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { transform: translateY(-100px) scale(1); opacity: 0; }
+    }
+
+    .page {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 32px;
+      padding: 48px 40px 40px;
+      position: relative;
+      animation: cardIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(40px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 32px;
+      background: linear-gradient(135deg, #06ffa540, #6bcbff30, #c77dff20, #ffd93d30);
+      z-index: -1;
+      animation: borderRotate 6s linear infinite;
+    }
+
+    @keyframes borderRotate {
+      0%   { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+
+    /* ── HEADER ── */
+    .card-header {
+      text-align: center;
+      margin-bottom: 36px;
+      animation: fadeUp 0.6s ease 0.2s both;
+    }
+
+    .logo-icon {
+      width: 68px;
+      height: 68px;
+      border-radius: 22px;
+      background: linear-gradient(135deg, var(--c5), var(--c3));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      margin: 0 auto 18px;
+      box-shadow: 0 0 32px #06ffa540;
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 32px #06ffa540; transform: scale(1); }
+      50%       { box-shadow: 0 0 52px #6bcbff60; transform: scale(1.04); }
+    }
+
+    .card-title {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--c5), var(--c3), var(--c4), var(--c2));
+      background-size: 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 4s linear infinite;
+      margin-bottom: 8px;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: 0%; }
+      100% { background-position: 200%; }
+    }
+
+    .card-sub {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ── FORM ── */
+    .form-group {
+      margin-bottom: 14px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .form-group:nth-child(1) { animation-delay: 0.30s; }
+    .form-group:nth-child(2) { animation-delay: 0.35s; }
+    .form-group:nth-child(3) { animation-delay: 0.40s; }
+    .form-group:nth-child(4) { animation-delay: 0.45s; }
+    .form-group:nth-child(5) { animation-delay: 0.50s; }
+
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .form-group input {
+      width: 100%;
+      background: #ffffff06;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      color: var(--text);
+      font-family: 'Cabinet Grotesk', sans-serif;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .form-group input::placeholder { color: var(--muted); }
+
+    .form-group input:focus {
+      border-color: var(--c5);
+      box-shadow: 0 0 0 3px #06ffa520;
+      background: #ffffff0a;
+    }
+
+    /* help text */
+    .helptext {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    .errorlist {
+      list-style: none;
+      margin-top: 6px;
+    }
+
+    .errorlist li {
+      font-size: 12px;
+      color: var(--c1);
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 24px 0;
+      animation: fadeUp 0.6s ease 0.55s both;
+    }
+
+    /* ── BUTTON ── */
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      animation: fadeUp 0.6s ease 0.6s both;
+    }
+
+    .btn-register {
+      width: 100%;
+      background: linear-gradient(135deg, var(--c5), var(--c3));
+      color: #060612;
+      font-family: 'Clash Display', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 15px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: all 0.2s;
+      box-shadow: 0 4px 24px #06ffa530;
+    }
+
+    .btn-register:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px #06ffa550;
+    }
+
+    .btn-register:active { transform: scale(0.98); }
+
+    /* ── LOGIN LINK ── */
+    .login-link {
+      text-align: center;
+      font-size: 14px;
+      color: var(--muted);
+      animation: fadeUp 0.6s ease 0.65s both;
+      margin-top: 20px;
+    }
+
+    .login-link a {
+      color: var(--c1);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+      margin-left: 4px;
+    }
+
+    .login-link a:hover { color: var(--c4); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<script>
+  const colors = ['#ff6b6b','#ffd93d','#6bcbff','#c77dff','#06ffa5'];
+  for(let i = 0; i < 18; i++){
+    const d = document.createElement('div');
+    d.className = 'dot';
+    const size = Math.random()*6+3;
+    d.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}vw;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration:${Math.random()*10+8}s;
+      animation-delay:${Math.random()*10}s;
+      opacity:0.6;
+      filter:blur(1px);
+    `;
+    document.body.appendChild(d);
+  }
+</script>
+
+<div class="page">
+  <div class="card">
+
+    <div class="card-header">
+      <div class="logo-icon">✦</div>
+      <div class="card-title">Ro'yxatdan o'ting!</div>
+      <div class="card-sub">Akkaunt yaratish uchun<br>quyidagi formani to'ldiring</div>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="form-group">
+          {{ field.label_tag }}
+          {{ field }}
+          {% if field.help_text %}
+            <span class="helptext">{{ field.help_text }}</span>
+          {% endif %}
+          {% if field.errors %}
+            {{ field.errors }}
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <div class="divider"></div>
+
+      <div class="actions">
+        <button type="submit" class="btn-register">✦ Ro'yxatdan o'tish</button>
+      </div>
+    </form>
+
+    <div class="login-link">
+      Akkauntingiz bormi?
+      <a href="{% url 'login' %}">Kiring</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+
+  const blobs = [
+    { x: 0.15, y: 0.2,  r: 350, color: '#06ffa5', dx: 0.0003,  dy: 0.0002  },
+    { x: 0.85, y: 0.75, r: 300, color: '#6bcbff', dx: -0.0002, dy: 0.0003  },
+    { x: 0.5,  y: 0.95, r: 280, color: '#c77dff', dx: 0.0001,  dy: -0.0003 },
+    { x: 0.1,  y: 0.8,  r: 250, color: '#ffd93d', dx: 0.0002,  dy: -0.0001 },
+    { x: 0.9,  y: 0.1,  r: 200, color: '#ff6b6b', dx: -0.0003, dy: 0.0002  },
+  ];
+
+  let t = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    blobs.forEach(b => {
+      const x = (Math.sin(t * b.dx * 1000 + b.x * 10) * 0.15 + b.x) * canvas.width;
+      const y = (Math.cos(t * b.dy * 1000 + b.y * 10) * 0.15 + b.y) * canvas.height;
+      const grd = ctx.createRadialGradient(x, y, 0, x, y, b.r);
+      grd.addColorStop(0, b.color + '18');
+      grd.addColorStop(1, b.color + '00');
+      ctx.beginPath();
+      ctx.arc(x, y, b.r, 0, Math.PI * 2);
+      ctx.fillStyle = grd;
+      ctx.fill();
+    });
+    t++;
+    requestAnimationFrame(draw);
+  }
+  draw();
+</script>
+
+</body>
+</html>

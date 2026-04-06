@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Vazifalar — Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;600;700&family=Cabinet+Grotesk:wght@300;400;500;700&display=swap"
+          rel="stylesheet">
+    <style>
+        :root {
+            --bg: #060612;
+            --c1: #ff6b6b;
+            --c2: #ffd93d;
+            --c3: #6bcbff;
+            --c4: #c77dff;
+            --c5: #06ffa5;
+            --text: #f5f4ff;
+            --muted: #7b7a9a;
+            --card: #0e0e1e;
+            --border: #ffffff0c;
+            --input-bg: #ffffff06;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Cabinet Grotesk', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .dot {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            animation: floatDot linear infinite;
+        }
+
+        @keyframes floatDot {
+            0% {
+                transform: translateY(100vh) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--border);
+            background: #060612cc;
+            backdrop-filter: blur(20px);
+            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .nav-brand {
+            font-family: 'Clash Display', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--c4), var(--c3));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-family: 'Cabinet Grotesk', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            border: 1px solid var(--border);
+            background: var(--input-bg);
+            color: var(--muted);
+        }
+
+        .nav-btn:hover {
+            background: #ffffff0e;
+            color: var(--text);
+            transform: translateY(-1px);
+        }
+
+        .nav-btn.profile {
+            border-color: #c77dff30;
+            color: var(--c4);
+        }
+
+        .nav-btn.profile:hover {
+            background: #c77dff10;
+        }
+
+        .logout-form {
+            margin: 0;
+        }
+
+        .nav-btn.logout {
+            border-color: #ff6b6b30;
+            color: var(--c1);
+        }
+
+        .nav-btn.logout:hover {
+            background: #ff6b6b10;
+        }
+
+        /* ── MAIN ── */
+        .main {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            margin-bottom: 36px;
+            animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+        }
+
+        .hero-greeting {
+            font-size: 13px;
+            color: var(--c5);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .hero-title {
+            font-family: 'Clash Display', sans-serif;
+            font-size: clamp(28px, 5vw, 44px);
+            font-weight: 700;
+            line-height: 1.1;
+            background: linear-gradient(90deg, var(--text), var(--muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+
+        /* ── STATS ── */
+        .stats {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+        }
+
+        .stat-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            background: var(--input-bg);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--muted);
+        }
+
+        .stat-chip .dot-ind {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .stat-chip.all .dot-ind {
+            background: var(--c3);
+        }
+
+        .stat-chip.pend .dot-ind {
+            background: var(--c2);
+        }
+
+        .stat-chip.prog .dot-ind {
+            background: var(--c4);
+        }
+
+        .stat-chip.done .dot-ind {
+            background: var(--c5);
+        }
+
+        /* ── TOOLBAR ── */
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            align-items: center;
+            animation: fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
+            overflow: visible;
+            position: relative;
+            z-index: 50;
+        }
+
+        .search-wrap {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 15px;
+            color: var(--muted);
+            pointer-events: none;
+        }
+
+        .search-input {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px 12px 40px;
+            color: var(--text);
+            font-family: 'Cabinet Grotesk', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .search-input::placeholder {
+            color: var(--muted);
+        }
+
+        .search-input:focus {
+            border-color: var(--c4);
+            box-shadow: 0 0 0 3px #c77dff15;
+        }
+
+        /* ── CUSTOM DROPDOWN ── */
+        .custom-select {
+            position: relative;
+            user-select: none;
+        }
+
+        .custom-select-trigger {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 12px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--muted);
+            font-family: 'Cabinet Grotesk', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            min-width: 160px;
+        }
+
+        .custom-select-trigger:hover,
+        .custom-select.open .custom-select-trigger {
+            border-color: #c77dff40;
+            color: var(--text);
+            background: #ffffff0a;
+        }
+
+        .custom-select-arrow {
+            font-size: 10px;
+            color: var(--muted);
+            transition: transform 0.2s;
+        }
+
+        .custom-select.open .custom-select-arrow {
+            transform: rotate(180deg);
+        }
+
+        .custom-select-dropdown {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            background: #12122a;
+            border: 1px solid #ffffff14;
+            border-radius: 12px;
+            overflow: hidden;
+            z-index: 9999;
+            box-shadow: 0 16px 40px #00000080;
+            display: none;
+            animation: dropIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes dropIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .custom-select.open .custom-select-dropdown {
+            display: block;
+        }
+
+        .custom-select-option {
+            padding: 11px 16px;
+            font-family: 'Cabinet Grotesk', sans-serif;
+            font-size: 14px;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .custom-select-option:hover {
+            background: #c77dff15;
+            color: var(--text);
+        }
+
+        .custom-select-option.selected {
+            background: #c77dff20;
+            color: var(--c4);
+            font-weight: 600;
+        }
+
+        .custom-select-option .opt-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .btn-new {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, var(--c4), var(--c3));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-family: 'Clash Display', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 4px 20px #c77dff30;
+            white-space: nowrap;
+        }
+
+        .btn-new:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px #c77dff50;
+        }
+
+        /* ── TODO CARDS ── */
+        .todo-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .todo-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            transition: all 0.25s;
+            animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .todo-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            border-radius: 20px 0 0 20px;
+        }
+
+        .todo-card.priority-High::before {
+            background: var(--c1);
+        }
+
+        .todo-card.priority-Medium::before {
+            background: var(--c2);
+        }
+
+        .todo-card.priority-Low::before {
+            background: var(--c5);
+        }
+
+        .todo-card:hover {
+            border-color: #ffffff18;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px #00000040;
+        }
+
+        @keyframes cardIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .todo-card:nth-child(1) {
+            animation-delay: 0.3s;
+        }
+
+        .todo-card:nth-child(2) {
+            animation-delay: 0.35s;
+        }
+
+        .todo-card:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .todo-card:nth-child(4) {
+            animation-delay: 0.45s;
+        }
+
+        .todo-card:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        .todo-card:nth-child(6) {
+            animation-delay: 0.55s;
+        }
+
+        .todo-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .todo-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+
+        .todo-title {
+            font-family: 'Clash Display', sans-serif;
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .todo-desc {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.5;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .todo-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .badge.status-pending {
+            background: #ffd93d18;
+            color: var(--c2);
+            border: 1px solid #ffd93d30;
+        }
+
+        .badge.status-in_progress {
+            background: #c77dff18;
+            color: var(--c4);
+            border: 1px solid #c77dff30;
+        }
+
+        .badge.status-completed {
+            background: #06ffa518;
+            color: var(--c5);
+            border: 1px solid #06ffa530;
+        }
+
+        .badge.priority-High {
+            background: #ff6b6b18;
+            color: var(--c1);
+            border: 1px solid #ff6b6b30;
+        }
+
+        .badge.priority-Medium {
+            background: #ffd93d18;
+            color: var(--c2);
+            border: 1px solid #ffd93d30;
+        }
+
+        .badge.priority-Low {
+            background: #06ffa518;
+            color: var(--c5);
+            border: 1px solid #06ffa530;
+        }
+
+        .due-date {
+            font-size: 12px;
+            color: var(--muted);
+            margin-left: auto;
+        }
+
+        /* ── ACTIONS ── */
+        .todo-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .action-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--input-bg);
+            color: var(--muted);
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .action-btn.edit:hover {
+            background: #c77dff15;
+            border-color: #c77dff40;
+            color: var(--c4);
+        }
+
+        .action-btn.delete:hover {
+            background: #ff6b6b15;
+            border-color: #ff6b6b40;
+            color: var(--c1);
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty {
+            text-align: center;
+            padding: 80px 20px;
+            animation: fadeUp 0.7s ease 0.3s both;
+        }
+
+        .empty-icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .empty-title {
+            font-family: 'Clash Display', sans-serif;
+            font-size: 22px;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .empty-sub {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 24px;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* delete modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: #00000080;
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 36px 32px;
+            max-width: 380px;
+            width: 90%;
+            text-align: center;
+            animation: cardIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .modal-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .modal-title {
+            font-family: 'Clash Display', sans-serif;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .modal-sub {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 24px;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-cancel {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--input-bg);
+            color: var(--muted);
+            font-family: 'Cabinet Grotesk', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-cancel:hover {
+            background: #ffffff0e;
+            color: var(--text);
+        }
+
+        .modal-confirm {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #ff6b6b, #ff4444);
+            color: white;
+            font-family: 'Clash Display', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-confirm:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px #ff6b6b40;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<script>
+    const colors = ['#ff6b6b', '#ffd93d', '#6bcbff', '#c77dff', '#06ffa5'];
+    for (let i = 0; i < 18; i++) {
+        const d = document.createElement('div');
+        d.className = 'dot';
+        const size = Math.random() * 6 + 3;
+        d.style.cssText = `width:${size}px;height:${size}px;left:${Math.random() * 100}vw;background:${colors[Math.floor(Math.random() * colors.length)]};animation-duration:${Math.random() * 10 + 8}s;animation-delay:${Math.random() * 10}s;opacity:0.5;filter:blur(1px);`;
+        document.body.appendChild(d);
+    }
+</script>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="nav-brand">✦ TaskFlow</div>
+    <div class="nav-right">
+        <a href="{% url 'profile' %}" class="nav-btn profile">👤 Profil</a>
+        <form class="logout-form" method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="nav-btn logout">⎋ Chiqish</button>
+        </form>
+    </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+    <!-- HERO -->
+    <div class="hero">
+        <div class="hero-greeting">👋 Xush kelibsiz,</div>
+        <div class="hero-title">{{ request.user.get_full_name|default:request.user.username }}</div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats">
+        <div class="stat-chip all">
+            <span class="dot-ind"></span>
+            Jami: <strong>{{ total }}</strong>
+        </div>
+        <div class="stat-chip pend">
+            <span class="dot-ind"></span>
+            Kutilmoqda: <strong>{{ pending }}</strong>
+        </div>
+        <div class="stat-chip prog">
+            <span class="dot-ind"></span>
+            Jarayonda: <strong>{{ in_progress }}</strong>
+        </div>
+        <div class="stat-chip done">
+            <span class="dot-ind"></span>
+            Bajarilgan: <strong>{{ completed }}</strong>
+        </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+        <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" id="searchInput" placeholder="Vazifa qidirish...">
+        </div>
+
+        <!-- Status custom dropdown -->
+        <div class="custom-select" id="statusDropdown">
+            <div class="custom-select-trigger" onclick="toggleDropdown('statusDropdown')">
+                <span id="statusLabel">Barcha statuslar</span>
+                <span class="custom-select-arrow">▼</span>
+            </div>
+            <div class="custom-select-dropdown">
+                <div class="custom-select-option selected" data-value=""
+                     onclick="selectOption('statusDropdown', '', 'Barcha statuslar')">
+                    <span class="opt-dot" style="background:var(--muted)"></span> Barcha statuslar
+                </div>
+                <div class="custom-select-option" data-value="pending"
+                     onclick="selectOption('statusDropdown', 'pending', '⏳ Kutilmoqda')">
+                    <span class="opt-dot" style="background:var(--c2)"></span> Kutilmoqda
+                </div>
+                <div class="custom-select-option" data-value="in_progress"
+                     onclick="selectOption('statusDropdown', 'in_progress', '⚡ Jarayonda')">
+                    <span class="opt-dot" style="background:var(--c4)"></span> Jarayonda
+                </div>
+                <div class="custom-select-option" data-value="completed"
+                     onclick="selectOption('statusDropdown', 'completed', '✅ Bajarilgan')">
+                    <span class="opt-dot" style="background:var(--c5)"></span> Bajarilgan
+                </div>
+            </div>
+        </div>
+
+        <!-- Priority custom dropdown -->
+        <div class="custom-select" id="priorityDropdown">
+            <div class="custom-select-trigger" onclick="toggleDropdown('priorityDropdown')">
+                <span id="priorityLabel">Muhimlik darajasi</span>
+                <span class="custom-select-arrow">▼</span>
+            </div>
+            <div class="custom-select-dropdown">
+                <div class="custom-select-option selected" data-value=""
+                     onclick="selectOption('priorityDropdown', '', 'Muhimlik darajasi')">
+                    <span class="opt-dot" style="background:var(--muted)"></span> Barchasi
+                </div>
+                <div class="custom-select-option" data-value="High"
+                     onclick="selectOption('priorityDropdown', 'High', '🔴 Yuqori')">
+                    <span class="opt-dot" style="background:var(--c1)"></span> Yuqori
+                </div>
+                <div class="custom-select-option" data-value="Medium"
+                     onclick="selectOption('priorityDropdown', 'Medium', '🟡 O\'rta')">
+                    <span class="opt-dot" style="background:var(--c2)"></span> O'rta
+                </div>
+                <div class="custom-select-option" data-value="Low"
+                     onclick="selectOption('priorityDropdown', 'Low', '🟢 Past')">
+                    <span class="opt-dot" style="background:var(--c5)"></span> Past
+                </div>
+            </div>
+        </div>
+
+        <a href="{% url 'todo-create' %}" class="btn-new">＋ Yangi vazifa</a>
+    </div>
+
+    <!-- TODO LIST -->
+    <div class="todo-list" id="todoList">
+
+        {% for todo in todos %}
+            <div class="todo-card priority-{{ todo.priority }}"
+                 data-title="{{ todo.title|lower }}"
+                 data-status="{{ todo.status }}"
+                 data-priority="{{ todo.priority }}">
+
+                <div class="todo-body">
+                    <div class="todo-top">
+                        <div class="todo-title">{{ todo.title }}</div>
+                    </div>
+                    {% if todo.description %}
+                        <div class="todo-desc">{{ todo.description }}</div>
+                    {% endif %}
+                    <div class="todo-meta">
+          <span class="badge status-{{ todo.status }}">
+            {% if todo.status == 'pending' %}⏳ Kutilmoqda
+            {% elif todo.status == 'in_progress' %}⚡ Jarayonda
+            {% else %}✅ Bajarilgan{% endif %}
+          </span>
+                        <span class="badge priority-{{ todo.priority }}">
+            {% if todo.priority == 'High' %}🔴
+            {% elif todo.priority == 'Medium' %}🟡
+            {% else %}🟢{% endif %}
+                            {{ todo.priority }}
+          </span>
+                        {% if todo.due_date %}
+                            <span class="due-date">📅 {{ todo.due_date }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="todo-actions">
+                    <a href="{% url 'todo-edit' todo.pk %}" class="action-btn edit" title="Tahrirlash">✎</a>
+                    <button class="action-btn delete" title="O'chirish"
+                            onclick="confirmDelete('{% url 'todo-delete' todo.pk %}')">✕
+                    </button>
+                </div>
+            </div>
+        {% empty %}
+            <div class="empty">
+                <span class="empty-icon">📭</span>
+                <div class="empty-title">Vazifalar yo'q</div>
+                <div class="empty-sub">Birinchi vazifangizni yarating!</div>
+                <a href="{% url 'todo-create' %}" class="btn-new" style="display:inline-flex;">＋ Yangi vazifa</a>
+            </div>
+        {% endfor %}
+
+    </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal">
+        <div class="modal-icon">🗑️</div>
+        <div class="modal-title">O'chirishni tasdiqlang</div>
+        <div class="modal-sub">Bu vazifa butunlay o'chiriladi. Bu amalni bekor qilib bo'lmaydi.</div>
+        <div class="modal-btns">
+            <button class="modal-cancel" onclick="closeModal()">Bekor qilish</button>
+            <form id="deleteForm" method="post" style="flex:1">
+                {% csrf_token %}
+                <button type="submit" class="modal-confirm" style="width:100%">O'chirish</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- BG CANVAS -->
+<script>
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+
+    const blobs = [
+        {x: 0.15, y: 0.2, r: 380, color: '#c77dff', dx: 0.0003, dy: 0.0002},
+        {x: 0.85, y: 0.7, r: 320, color: '#6bcbff', dx: -0.0002, dy: 0.0003},
+        {x: 0.5, y: 0.95, r: 290, color: '#06ffa5', dx: 0.0001, dy: -0.0003},
+        {x: 0.05, y: 0.8, r: 260, color: '#ff6b6b', dx: 0.0002, dy: -0.0001},
+        {x: 0.92, y: 0.1, r: 210, color: '#ffd93d', dx: -0.0003, dy: 0.0002},
+    ];
+
+    let t = 0;
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        blobs.forEach(b => {
+            const x = (Math.sin(t * b.dx * 1000 + b.x * 10) * 0.15 + b.x) * canvas.width;
+            const y = (Math.cos(t * b.dy * 1000 + b.y * 10) * 0.15 + b.y) * canvas.height;
+            const grd = ctx.createRadialGradient(x, y, 0, x, y, b.r);
+            grd.addColorStop(0, b.color + '15');
+            grd.addColorStop(1, b.color + '00');
+            ctx.beginPath();
+            ctx.arc(x, y, b.r, 0, Math.PI * 2);
+            ctx.fillStyle = grd;
+            ctx.fill();
+        });
+        t++;
+        requestAnimationFrame(draw);
+    }
+
+    draw();
+</script>
+
+<!-- SEARCH & FILTER -->
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const cards = document.querySelectorAll('.todo-card');
+
+    let activeStatus = '';
+    let activePriority = '';
+
+    function toggleDropdown(id) {
+        const el = document.getElementById(id);
+        const isOpen = el.classList.contains('open');
+        // close all
+        document.querySelectorAll('.custom-select').forEach(s => s.classList.remove('open'));
+        if (!isOpen) el.classList.add('open');
+    }
+
+    function selectOption(dropdownId, value, label) {
+        const dropdown = document.getElementById(dropdownId);
+        // update label
+        const labelId = dropdownId === 'statusDropdown' ? 'statusLabel' : 'priorityLabel';
+        document.getElementById(labelId).textContent = label;
+        // update selected class
+        dropdown.querySelectorAll('.custom-select-option').forEach(opt => {
+            opt.classList.toggle('selected', opt.dataset.value === value);
+        });
+        // store value
+        if (dropdownId === 'statusDropdown') activeStatus = value;
+        if (dropdownId === 'priorityDropdown') activePriority = value;
+        // close
+        dropdown.classList.remove('open');
+        filterCards();
+    }
+
+    function filterCards() {
+        const q = searchInput.value.toLowerCase();
+        cards.forEach(card => {
+            const title = card.dataset.title || '';
+            const status = card.dataset.status || '';
+            const priority = card.dataset.priority || '';
+            const matchQ = title.includes(q);
+            const matchSt = !activeStatus || status === activeStatus;
+            const matchPr = !activePriority || priority === activePriority;
+            card.style.display = (matchQ && matchSt && matchPr) ? '' : 'none';
+        });
+    }
+
+    searchInput.addEventListener('input', filterCards);
+
+    // close dropdowns on outside click
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.custom-select')) {
+            document.querySelectorAll('.custom-select').forEach(s => s.classList.remove('open'));
+        }
+    });
+</script>
+
+<!-- DELETE MODAL -->
+<script>
+    function confirmDelete(url) {
+        document.getElementById('deleteForm').action = url;
+        document.getElementById('deleteModal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('deleteModal').classList.remove('active');
+    }
+
+    document.getElementById('deleteModal').addEventListener('click', function (e) {
+        if (e.target === this) closeModal();
+    });
+</script>
+
+</body>
+</html>

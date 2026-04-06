@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vazifa — {{ object|yesno:"Tahrirlash,Yaratish" }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;600;700&family=Cabinet+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #060612;
+      --c1: #ff6b6b;
+      --c2: #ffd93d;
+      --c3: #6bcbff;
+      --c4: #c77dff;
+      --c5: #06ffa5;
+      --text: #f5f4ff;
+      --muted: #7b7a9a;
+      --card: #0e0e1e;
+      --border: #ffffff0c;
+      --input-bg: #ffffff06;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Cabinet Grotesk', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .dot {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      animation: floatDot linear infinite;
+    }
+
+    @keyframes floatDot {
+      0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { transform: translateY(-100px) scale(1); opacity: 0; }
+    }
+
+    .page {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 540px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 32px;
+      padding: 48px 40px 40px;
+      position: relative;
+      overflow: hidden;
+      animation: cardIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(40px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 32px;
+      background: linear-gradient(135deg, #6bcbff40, #c77dff30, #06ffa520, #ffd93d30);
+      z-index: -1;
+      animation: borderRotate 6s linear infinite;
+    }
+
+    @keyframes borderRotate {
+      0%   { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+    }
+
+    .card-header {
+      text-align: center;
+      margin-bottom: 36px;
+      animation: fadeUp 0.6s ease 0.2s both;
+    }
+
+    .icon-wrap {
+      width: 64px;
+      height: 64px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, var(--c3), var(--c5));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin: 0 auto 16px;
+      box-shadow: 0 0 32px #6bcbff40;
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 32px #6bcbff40; }
+      50%       { box-shadow: 0 0 48px #6bcbff70; }
+    }
+
+    .card-title {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--c3), var(--c4), var(--c5));
+      background-size: 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 4s linear infinite;
+      margin-bottom: 6px;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: 0%; }
+      100% { background-position: 200%; }
+    }
+
+    .card-sub {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .form-group:nth-child(1) { animation-delay: 0.3s; }
+    .form-group:nth-child(2) { animation-delay: 0.35s; }
+    .form-group:nth-child(3) { animation-delay: 0.4s; }
+    .form-group:nth-child(4) { animation-delay: 0.45s; }
+    .form-group:nth-child(5) { animation-delay: 0.5s; }
+    .form-group:nth-child(6) { animation-delay: 0.55s; }
+
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="date"],
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      color: var(--text);
+      font-family: 'Cabinet Grotesk', sans-serif;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--c3);
+      box-shadow: 0 0 0 3px #6bcbff15;
+      background: #ffffff0a;
+    }
+
+    .form-group textarea {
+      resize: none;
+      height: 110px;
+      line-height: 1.6;
+    }
+
+    .form-group select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237b7a9a' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+    }
+
+    .form-group select option {
+      background: #0e0e1e;
+      color: var(--text);
+    }
+
+    .form-group input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.5);
+      cursor: pointer;
+    }
+
+    .errorlist {
+      list-style: none;
+      margin-top: 6px;
+    }
+
+    .errorlist li {
+      font-size: 12px;
+      color: var(--c1);
+      padding: 4px 0;
+    }
+
+    .helptext {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 5px;
+      display: block;
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 24px 0;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      animation: fadeUp 0.6s ease 0.6s both;
+    }
+
+    .btn-save {
+      width: 100%;
+      background: linear-gradient(135deg, var(--c3), var(--c5));
+      color: #060612;
+      font-family: 'Clash Display', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 15px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 24px #6bcbff30;
+      letter-spacing: 0.02em;
+    }
+
+    .btn-save:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px #6bcbff50;
+    }
+
+    .btn-save:active { transform: scale(0.98); }
+
+    .btn-back {
+      display: block;
+      text-align: center;
+      text-decoration: none;
+      background: #ffffff06;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'Clash Display', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 15px;
+      border-radius: 14px;
+      transition: all 0.2s;
+    }
+
+    .btn-back:hover {
+      background: #ffffff0e;
+      color: var(--text);
+      transform: translateY(-2px);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<script>
+  const colors = ['#ff6b6b','#ffd93d','#6bcbff','#c77dff','#06ffa5'];
+  for(let i = 0; i < 18; i++){
+    const d = document.createElement('div');
+    d.className = 'dot';
+    const size = Math.random()*6+3;
+    d.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}vw;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${Math.random()*10+8}s;animation-delay:${Math.random()*10}s;opacity:0.5;filter:blur(1px);`;
+    document.body.appendChild(d);
+  }
+</script>
+
+<div class="page">
+  <div class="card">
+
+    <div class="card-header">
+      <div class="icon-wrap">{{ object|yesno:"✎,＋" }}</div>
+      <div class="card-title">{{ object|yesno:"Vazifani tahrirlash,Yangi vazifa" }}</div>
+      <div class="card-sub">{{ object|yesno:"Ma'lumotlarni yangilang,Yangi vazifa qo'shing" }}</div>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+
+      {% for field in form %}
+        <div class="form-group">
+          {{ field.label_tag }}
+          {{ field }}
+          {% if field.help_text %}
+            <span class="helptext">{{ field.help_text }}</span>
+          {% endif %}
+          {% if field.errors %}
+            {{ field.errors }}
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <div class="divider"></div>
+
+      <div class="btn-group">
+        <button type="submit" class="btn-save">
+          {{ object|yesno:"✓ Saqlash,＋ Yaratish" }}
+        </button>
+        <a href="{% url 'home' %}" class="btn-back">← Orqaga</a>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+  const blobs = [
+    { x:0.2,  y:0.2,  r:350, color:'#6bcbff', dx:0.0003,  dy:0.0002  },
+    { x:0.8,  y:0.7,  r:300, color:'#c77dff', dx:-0.0002, dy:0.0003  },
+    { x:0.5,  y:0.95, r:280, color:'#06ffa5', dx:0.0001,  dy:-0.0003 },
+    { x:0.05, y:0.8,  r:250, color:'#ffd93d', dx:0.0002,  dy:-0.0001 },
+    { x:0.92, y:0.1,  r:200, color:'#ff6b6b', dx:-0.0003, dy:0.0002  },
+  ];
+
+  let t = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    blobs.forEach(b => {
+      const x = (Math.sin(t * b.dx * 1000 + b.x * 10) * 0.15 + b.x) * canvas.width;
+      const y = (Math.cos(t * b.dy * 1000 + b.y * 10) * 0.15 + b.y) * canvas.height;
+      const grd = ctx.createRadialGradient(x, y, 0, x, y, b.r);
+      grd.addColorStop(0, b.color + '15');
+      grd.addColorStop(1, b.color + '00');
+      ctx.beginPath(); ctx.arc(x, y, b.r, 0, Math.PI*2);
+      ctx.fillStyle = grd; ctx.fill();
+    });
+    t++; requestAnimationFrame(draw);
+  }
+  draw();
+</script>
+
+</body>
+</html>
